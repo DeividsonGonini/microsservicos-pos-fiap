@@ -1,0 +1,7 @@
+fastapi==0.100.0
+pydantic==2.0.2
+# Dependencia para rodar o Python com FastAPI
+uvicorn==0.22.0
+mysql-connector-python==8.0.33
+# Dependencia para apoiar na conexao com o Banco de dados
+SQLAlchemy==2.0.18
