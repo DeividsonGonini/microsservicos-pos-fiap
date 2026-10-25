@@ -25,12 +25,13 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 app = FastAPI()
 
+#Registrando o service no Kong
 def self_register():    
     url = "http://kong:8001/upstreams/estoque/targets"
     payload = {
-        "target": os.environ['HOSTNAME'] + ":8080",
-        "weight": 10,
-        "tags": [ "estoque" ]
+        "target": os.environ['HOSTNAME'] + ":8080", #nome do target / Hostname vem do Docker-compose
+        "weight": 10, # peso
+        "tags": [ "estoque" ] # tag
     }
     headers = {
         "Content-Type": "application/json",

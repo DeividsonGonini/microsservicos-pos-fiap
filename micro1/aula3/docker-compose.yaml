@@ -57,7 +57,15 @@ services:
     networks:
       - fiap-store
   
-
+# Réplica 03 (usaremos para testar o Upstream)
+  estoque-3:
+    build: estoque/
+    hostname: estoque-3
+    depends_on:
+      - db-estoque
+    networks:
+      - fiap-store
+  
   kong-migrations:
     image: "kong:3.3.0-ubuntu"
     command: kong migrations bootstrap #configuração do Banco de dados do Kong
