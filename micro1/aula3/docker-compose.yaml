@@ -1,5 +1,6 @@
 version: '3.9'
 
+# Variáveis de Ambiente
 x-kong-config: &kong-env
   KONG_DATABASE: postgres
   KONG_PG_DATABASE: kong
@@ -38,6 +39,7 @@ services:
     networks:
       - fiap-store
 
+# Réplica 01
   estoque-1:
     build: estoque/
     hostname: estoque-1
@@ -46,6 +48,7 @@ services:
     networks:
       - fiap-store
 
+# Réplica 02 (usaremos para testar o Upstream)
   estoque-2:
     build: estoque/
     hostname: estoque-2
@@ -54,19 +57,31 @@ services:
     networks:
       - fiap-store
   
+# Réplica 03 (usaremos para testar o Upstream)
+  estoque-3:
+    build: estoque/
+    hostname: estoque-3
+    depends_on:
+      - db-estoque
+    networks:
+      - fiap-store
+  
   kong-migrations:
     image: "kong:3.3.0-ubuntu"
-    command: kong migrations bootstrap
+    command: kong migrations bootstrap #configuração do Banco de dados do Kong
     depends_on:
       - db-kong
+    # Populando as variaveis de ambiente 
     environment:
       <<: *kong-env
+    # Secrets carregada atraves do arquivo POSTGRES_PASSWORD.txt
     secrets:
       - kong_postgres_password
     networks:
       - fiap-store
     restart: on-failure
 
+# Inicio e finalização do Kong Migrations
   kong-migrations-up:
     image: "kong:3.3.0-ubuntu"
     command: kong migrations up && kong migrations finish
@@ -80,28 +95,29 @@ services:
       - fiap-store
     restart: on-failure
 
+# Serviço do cong
   kong:
     image: "kong:3.3.0-ubuntu"
     user: "kong"
     environment:
       <<: *kong-env
-      KONG_ADMIN_ACCESS_LOG: /dev/stdout
-      KONG_ADMIN_ERROR_LOG: /dev/stderr
-      KONG_PROXY_LISTEN: "0.0.0.0:8000"
-      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
-      KONG_PROXY_ACCESS_LOG: /dev/stdout
-      KONG_PROXY_ERROR_LOG: /dev/stderr
-      KONG_PREFIX: /var/run/kong
-      KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yaml"
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout    # Define saida padrão dos logs de Admin
+      KONG_ADMIN_ERROR_LOG: /dev/stderr     # Define saida padrão dos logs de erro de Admin
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"     # Porta Administrativa, pode ser configurada para um IP específico
+      KONG_PROXY_LISTEN: "0.0.0.0:8000"     # Porta do proxy para fazer a gestão das APIs, onde mandamos as requisições
+      KONG_PROXY_ACCESS_LOG: /dev/stdout    # Define saida padrão dos logs de Proxy
+      KONG_PROXY_ERROR_LOG: /dev/stderr     # Define saida padrão dos logs de erro de Proxy
+      KONG_PREFIX: /var/run/kong    # Prefixo de configurações
+      KONG_DECLARATIVE_CONFIG: "/opt/kong/kong.yaml"   # Configurações do Kong
     secrets:
       - kong_postgres_password
     networks:
       - fiap-store
     ports:
-      - "0.0.0.0:8000:8000/tcp"
-      - "0.0.0.0:8443:8443/tcp"
-      - "0.0.0.0:8001:8001/tcp"
-      - "0.0.0.0:8444:8444/tcp"
+      - "0.0.0.0:8000:8000/tcp"   # Para comunicar com a API do Proxy via HTTP
+      - "0.0.0.0:8443:8443/tcp"   # Para comunicar com a API do Proxy via HTTPS
+      - "0.0.0.0:8001:8001/tcp"   # Para comunicar com a API Administrativa via HTTP
+      - "0.0.0.0:8444:8444/tcp"   # Para comunicar com a API Administrativa via HTTPS
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 10s
@@ -117,7 +133,7 @@ services:
       - no-new-privileges
 
   db-kong:
-    image: postgres:9.5
+    image: postgres:9.5     # Recomendação da Kong é utilizar o Postgres
     environment:
       POSTGRES_DB: kong
       POSTGRES_USER: kong
@@ -137,6 +153,7 @@ services:
     volumes:
       - kong_data:/var/lib/postgresql/data
   
+# Cria a variavel e atrela ao arquivo onde está salva a senha
 secrets:
   kong_postgres_password:
     file: ./POSTGRES_PASSWORD.txt
