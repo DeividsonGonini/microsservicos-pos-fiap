@@ -25,6 +25,7 @@ paths:
       description: Permite adicionarmos o registro de estoque de um novo produto
       operationId: criaEstoque
       requestBody:
+        description: Criação de novo registro de estoque
         content:
           application/json:
             schema:
