@@ -137,10 +137,13 @@ services:
     volumes:
       - kong_data:/var/lib/postgresql/data
   
+#Servidor Swagger UI
   swagger-ui:
     image: swaggerapi/swagger-ui
     environment:
+    #Onde o contrato será encontrado no container
       SWAGGER_JSON: "/openapi.json"
+    #Carrega o arquivo JSON para o container em openapi.json
     volumes:
       - ./contrato/openapi.json:/openapi.json
     ports:
