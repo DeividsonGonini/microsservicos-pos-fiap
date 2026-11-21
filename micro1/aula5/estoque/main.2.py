@@ -4,10 +4,12 @@ from typing import List
 from sqlalchemy import create_engine, Table, MetaData, select, update, insert, Column, String, Float, Integer
 from sqlalchemy.exc import NoResultFound
 from sqlalchemy.orm import sessionmaker
+# Biblioteca para conexao de serviços da AWS
 import boto3
 
 # Configuração do SQLAlchemy
 DATABASE_URL = "mysql+mysqlconnector://estoque_user:Mudar123!@db-servicos:3306/estoque"
+#Fila de atualização do estoque
 SQS_UPDATE_QUEUE = "estoque-atualizacao"
 engine = create_engine(DATABASE_URL)
 metadata = MetaData()
@@ -28,16 +30,17 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 sqs = boto3.client('sqs', 
                    endpoint_url='http://localstack:4566', 
                    region_name='us-east-1',
-                   aws_access_key_id='LKIAQDDDDDDDK7TDMD7S',
-                   aws_secret_access_key='6TfUN3ksRFSYv15hlPCtkNMLpzxHH5IVLBDu+E7V')
+                   aws_access_key_id='LKIAQAAAAAAAAXR5IFDO',
+                   aws_secret_access_key='N+jsNgqZdPJhTI28y220fXyTwO7t6CX9vEt7/QhV')
 
+# Função para enviar mensagem para o SQS
 def send_to_sqs(queue_name: str, message_body: str):
     try:
-        # Get the URL for the queue
+        # Pega a URL da Fila SQS
         response = sqs.get_queue_url(QueueName=queue_name)
         queue_url = response['QueueUrl']
         
-        # Send the message
+        # Envia a mensagem
         sqs.send_message(
             QueueUrl=queue_url,
             MessageBody=message_body
