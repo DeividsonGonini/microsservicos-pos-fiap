@@ -31,6 +31,7 @@ services:
       MYSQL_ROOT_PASSWORD: root_password
     volumes:
       - db_servicos_data:/var/lib/mysql
+      # Quando starta a aplicação ele verifica dentro da pasta migrations se tem script para executar
       - ./migrations:/docker-entrypoint-initdb.d
     networks:
       - fiap-store

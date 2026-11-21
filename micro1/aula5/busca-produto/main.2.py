@@ -54,8 +54,8 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 sqs = boto3.client('sqs', 
                    endpoint_url='http://localstack:4566', 
                    region_name='us-east-1',
-                   aws_access_key_id='LKIAQAAAAAAAK7TDMD7S',
-                   aws_secret_access_key='6TfUN3ksRFSYv15hlPCtkNMLpzxHH5IVLBDu+E7V')
+                   aws_access_key_id='LKIAQAAAAAAAAXR5IFDO',
+                   aws_secret_access_key='N+jsNgqZdPJhTI28y220fXyTwO7t6CX9vEt7/QhV')
 queues = {
     "estoque-atualizacao": "http://localstack:4566/000000000000/estoque-atualizacao",
     "preco-atualizacao": "http://localstack:4566/000000000000/preco-atualizacao",
